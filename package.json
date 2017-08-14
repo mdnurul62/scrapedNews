@@ -17,9 +17,11 @@
   },
   "homepage": "https://github.com/mdnurul62/scrapedNews#readme",
   "dependencies": {
+    "body-parser": "^1.17.2",
     "cheerio": "^1.0.0-rc.2",
     "express": "^4.15.4",
     "mongojs": "^2.4.1",
+    "mongoose": "^4.11.7",
     "request": "^2.81.0"
   }
 }
