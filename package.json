@@ -1,0 +1,19 @@
+{
+  "name": "scrapednews",
+  "version": "1.0.0",
+  "description": "This web app will scrape stories from a selected news outlet and allow users to leave comment on it. ",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mdnurul62/scrapedNews.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mdnurul62/scrapedNews/issues"
+  },
+  "homepage": "https://github.com/mdnurul62/scrapedNews#readme"
+}
