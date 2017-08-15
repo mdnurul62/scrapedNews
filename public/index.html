@@ -1,53 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Star Wars - Express</title>
-  <!-- Latest compiled and minified CSS & JS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-  <script src="https://code.jquery.com/jquery.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-
+  <title>News scraper</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 </head>
 <body>
 
-  <div class="container">
-    <div class="jumbotron text-center">
-      <h1>Reader's Review</h1>
-      <h3>Read news article and leave your review!</h3>
-      <hr>
-      <a href="/"><button type="button" class="btn btn-danger btn-lg"><span class="glyphicon glyphicon-eye-open"></span> View Characters</button></a>
-    </div>
+<div class="container">
+  <div class="text-center">
+  <h1>Reader's Review</h1>
+  <hr>
+  <h4>If you want to read the article, click the link.</h6>
+  <h4>If you want to write a review on article, click article heading.</h6>
+  <hr>
+  </div>
+  <div id="articles">   
+  </div>
+  <div id="reviews"></div>
+
+
+  <!-- Trigger the modal with a p lement -->
+  <div data-toggle="modal" data-target="#modal">
     
-    <div class="row">
-
-      <div class="col-lg-12">
-
-        <div class="panel panel-default">
-          <div class="panel-heading">
-            <h3 class="panel-title"><strong>Add your review</strong></h3>
-          </div>
-          <div class="panel-body">
-            <form method="POST" role="form">
-
-              <div class="form-group">
-                <label for="name">Review</label>
-                <input type="text" class="form-control" id="review">
-              </div>
-            </form>
-            <br>
-            <div class="text-right">
-              <button type="submit" class="btn btn-primary btn-md" id="submitBtn"><span class="glyphicon glyphicon-fire"></span> Submit your review</button>
-            </div>
-          </div>
-          <div id="article"></div>
-        </div>
-
-      </div>
-    </div>
   </div>
 
- 
-<script src="app.js" type="text/javascript"></script>
+  <!-- Modal -->
+  <div class="modal fade" id="modal" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Write your review</h4>
+        </div>
+        <div class="modal-body">
+          <textarea class="form-control" rows="5" id="review-box" placeholder="Enter review Here!"></textarea>
+          <br>
+          <button id="review-submit" class="btn btn-lg pull-right">Submit</button>
+        </div>
+        <br><br>
+        <div class="modal-footer text-center">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+  
+</div>
+<script type="text/javascript" src="app.js"></script>
 </body>
 </html>

@@ -1,19 +1,71 @@
-   alert("connection ok");
+//alert("connection ok");
 
-    // Question: What does this code do?
-    $("#add-btn").on("click", function(event) {
-      event.preventDefault();
-      var newCharacter = {
-        name: $("#name").val().trim(),
-        role: $("#role").val().trim(),
-        age: $("#age").val().trim(),
-        forcePoints: $("#force-points").val().trim()
-      };
+  //Grab the articles as json
+  $.getJSON("/articles", function(data) {
+    //For each article
+    for (var i = 0; i < data.length; i++) {
+      //Display information on page
+      $("#articles").append("<p data-id='" + data[i]._id + "'>" + data[i].title + "<br />" + data[i].link + "</p>");
+    }
+  });
 
-      // Question: What does this code do??
-      $.post("/api/new", newCharacter)
-      .done(function(data) {
-        console.log(data);
-        alert("Adding character...");
-      });
+//Whenever reader clicks news heading
+$(document).on("click", "p", function() {
+  $("#reviews").empty();
+  //Save the id from the p tag
+  var thisId = $(this).attr("data-id");
+  //Ajax cal for the article
+  $.ajax({
+    method: "GET",
+    url: "/articles/" + thisId
+  }).done(function(data) {
+    console.log(data);
+    // The title of the article
+      $("#reviews").append("<h2>" + data.title + "</h2>");
+      // An input to enter a new title
+      $("#reviews").append("<input id='titleinput' name='title' >");
+      // A textarea to add a new note body
+      $("#reviews").append("<textarea id='bodyinput' name='body'></textarea>");
+      // A button to submit a new note, with the id of the article saved to it
+      $("#reviews").append("<button data-id='" + data._id + "' id='saveReview'>Save Review</button>");
+
+      // If there's a note in the article
+      if (data.review) {
+        // Place the title of the note in the title input
+        $("#titleinput").val(data.review.title);
+        // Place the body of the note in the body textarea
+        $("#bodyinput").val(data.review.body);
+      }
+  })
+});
+
+// When you click the savenote button
+$(document).on("click", "#saveReview", function() {
+  // Grab the id associated with the article from the submit button
+  var thisId = $(this).attr("data-id");
+
+  // Run a POST request to change the note, using what's entered in the inputs
+  $.ajax({
+    method: "POST",
+    url: "/articles/" + thisId,
+    data: {
+      // Value taken from title input
+      title: $("#titleinput").val(),
+      // Value taken from note textarea
+      body: $("#bodyinput").val()
+    }
+  })
+    // With that done
+    .done(function(data) {
+      // Log the response
+      console.log(data);
+      // Empty the notes section
+      $("#reviews").empty();
     });
+
+  // Also, remove the values entered in the input and textarea for note entry
+  $("#titleinput").val("");
+  $("#bodyinput").val("");
+});
+
+    
