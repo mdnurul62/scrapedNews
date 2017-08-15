@@ -5,12 +5,18 @@
     //For each article
     for (var i = 0; i < data.length; i++) {
       //Display information on page
+      
       $("#articles").append("<p data-id='" + data[i]._id + "'>" + data[i].title + "<br />" + data[i].link + "</p>");
+      $("#articles").append("<hr>");
+      
     }
   });
 
+//
+
 //Whenever reader clicks news heading
-$(document).on("click", "p", function() {
+$(document).on("click", "p", function() { 
+  $("p").toggle("modal")
   $("#reviews").empty();
   //Save the id from the p tag
   var thisId = $(this).attr("data-id");
@@ -20,12 +26,12 @@ $(document).on("click", "p", function() {
     url: "/articles/" + thisId
   }).done(function(data) {
     console.log(data);
-    // The title of the article
-      $("#reviews").append("<h2>" + data.title + "</h2>");
+     // The title of the article
+      $("#reviews").append("<h3>" + data.title + "</h3>");
       // An input to enter a new title
-      $("#reviews").append("<input id='titleinput' name='title' >");
+      $("#reviews").append("<input id='titleinput' name='title' placeholder='Enter title here----!' ></input>");
       // A textarea to add a new note body
-      $("#reviews").append("<textarea id='bodyinput' name='body'></textarea>");
+      $("#reviews").append("<textarea id='bodyinput' name='body' placeholder='Enter text here ---!'></textarea>");
       // A button to submit a new note, with the id of the article saved to it
       $("#reviews").append("<button data-id='" + data._id + "' id='saveReview'>Save Review</button>");
 
@@ -39,7 +45,7 @@ $(document).on("click", "p", function() {
   })
 });
 
-// When you click the savenote button
+// When you click the saveReview button
 $(document).on("click", "#saveReview", function() {
   // Grab the id associated with the article from the submit button
   var thisId = $(this).attr("data-id");

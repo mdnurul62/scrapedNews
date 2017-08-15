@@ -42,10 +42,6 @@ db.once("open", function() {
 	console.log("Mongoose connect successfully!");
 });
 
-//Main route
-// app.get("/", function(req, res) {
-// 	res.send("Hello data base!");
-// })
 
 // First, tell the console what server.js is doing
 console.log("\n***********************************\n" +
@@ -53,17 +49,6 @@ console.log("\n***********************************\n" +
             "from nytimes site:" +
             "\n***********************************\n");
 
-//Making a request for new york times latest all news articles
-// app.get("/all", function(req, res) {
-// 	//Find all results from the srapedData collection in the db
-// 	db.articles.find({}, function(error, found) {
-// 		if(error) {
-// 			console.log(error);
-// 		} else {
-// 			res.json(found);
-// 		}
-// 	});
-// });
 
 //Making a request for new york times scraped data
 app.get("/scrape", function(req, res) {
@@ -73,8 +58,6 @@ app.get("/scrape", function(req, res) {
 		//var results = [];
 		$("h2.story-heading").each(function(i, element) {
 			var result = {};
-			//var title = $(element).children().text();
-			//var link = $(element).children().attr("href");
 			//Adding and saving every text and href as properties of result object
 			result.title = $(this).children().text();
 			result.link = $(this).children("a").attr("href");
@@ -89,19 +72,6 @@ app.get("/scrape", function(req, res) {
 				}
 
 			});
-			// db.scrapedData.insert(
-			// 	{
-			// 		title: title,
-			// 		link: link
-			// 	}, function(error, inserted) {
-			// 		if(error) {
-			// 			console.log(error);
-			// 		} else {
-			// 			console.log(inserted);
-			// 		}
-
-			// 	}
-			// );
 		});
 	});
 	//Send message to browser 
@@ -117,6 +87,16 @@ app.get("/articles", function(req, res) {
 			res.json(doc);
 		}
 
+	});
+});
+
+app.get("/reviews", function(req, res) {
+	Review.find({}, function(err, doc) {
+		if(err) {
+			console.log(err);
+		} else {
+			res.json(doc);
+		}
 	});
 });
 
@@ -139,13 +119,53 @@ app.get("/articles/:id", function(req, res) {
   });
 });
 
+// Delete One from the DB
+app.get("/delete/:id", function(req, res) {
+  // Remove a note using the objectID
+  Article.remove({
+    "_id": req.params.id
+  }, function(error, removed) {
+    // Log any errors from mongojs
+    if (error) {
+      console.log(error);
+      res.send(error);
+    }
+    // Otherwise, send the mongojs response to the browser
+    // This will fire off the success function of the ajax request
+    else {
+      console.log(removed);
+      res.send(removed);
+    }
+  });
+});
+
+// Delete One from the DB
+app.get("/reviews/delete/:_id", function(req, res) {
+  // Remove a note using the objectID
+  Review.remove({
+    "_id": req.params.id
+  }, function(error, removed) {
+    // Log any errors from mongojs
+    if (error) {
+      console.log(error);
+      res.send(error);
+    }
+    // Otherwise, send the mongojs response to the browser
+    // This will fire off the success function of the ajax request
+    else {
+      console.log(removed);
+      res.send(removed);
+    }
+  });
+});
+
 
 // Create a new note or replace an existing note
 app.post("/articles/:id", function(req, res) {
   // Create a new note and pass the req.body to the entry
   var newReview = new Review(req.body);
 
-  // And save the new note the db
+  // And save the new review to the db
   newReview.save(function(error, doc) {
     // Log any errors
     if (error) {
