@@ -28,7 +28,7 @@ $(document).on("click", "p", function() {
      // The title of the article
       $("#reviews").append("<h3>" + data.title + "</h3>");
       // An input to enter a new title
-      $("#reviews").append("<input id='titleinput' name='title' placeholder='Enter title here----!' ></input>");
+      $("#reviews").append("<input id='titleinput' name='title' placeholder='Enter title here----!'>");
       // A textarea to add a new note body
       $("#reviews").append("<textarea id='bodyinput' name='body' placeholder='Enter text here ---!'></textarea>");
       // A button to submit a new note, with the id of the article saved to it
@@ -45,7 +45,7 @@ $(document).on("click", "p", function() {
 });
 
 // When you click the saveReview button
-$(document).on("click", "#saveReview", ".close", function() {
+$(document).on("click", "#saveReview", function() {
   // Grab the id associated with the article from the submit button
   var thisId = $(this).attr("data-id");
   console.log(thisId);
@@ -64,7 +64,7 @@ $(document).on("click", "#saveReview", ".close", function() {
     .done(function(data) {
       // Log the response
       console.log(data);
-      // Empty the notes section
+      // Empty the review section
       $("#reviews").empty();
     });
 

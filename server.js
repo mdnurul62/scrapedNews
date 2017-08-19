@@ -29,7 +29,7 @@ var collections = ["scrapedData"];
 //Hook up mongojs configuration to the db variables
 //var db = mongojs(databaseUrl, collections);
 //Database configuration mongoose
-mongoose.connect("mongodb://localhost/scraper");
+mongoose.connect("mongodb://heroku_wj713hrb:4s02k3suj2010nkv6kmsd6roj6@ds149373.mlab.com:49373/heroku_wj713hrb");
 var db = mongoose.connection;
 //Show any mongoose errors
 db.on("error", function(error) {
@@ -59,13 +59,13 @@ app.get("/scrape", function(req, res) {
 		$("h2.story-heading").each(function(i, element) {
       var result = {};
       //loop  through object's result
-      for (var i in result) {
-        addIfNotFound(i);
-      }
-    });
+    //   for (var i in result) {
+    //     addIfNotFound(i);
+    //   }
+    // });
 
-    function addIfNotFound(current) {
-      //var result = {};
+    // function addIfNotFound() {
+    //   //var result = {};
       //Adding and saving every text and href as properties of result object
       result.title = $(this).children().text();
       result.link = $(this).children("a").attr("href");
@@ -81,15 +81,15 @@ app.get("/scrape", function(req, res) {
 
       });
 
-    }
+    //}
 			
 		});
-    //Send message to browser 
-    res.redirect("/");
+    
 
 	});
-	
-//});
+	//Send message to browser 
+    res.send("Scrape successfully completed!");
+});
 
 //This route will get saved articles in mongoDB
 app.get("/articles", function(req, res) {
