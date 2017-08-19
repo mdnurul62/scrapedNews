@@ -57,26 +57,39 @@ app.get("/scrape", function(req, res) {
 		var $ = cheerio.load(html);
 		//var results = [];
 		$("h2.story-heading").each(function(i, element) {
-			var result = {};
-			//Adding and saving every text and href as properties of result object
-			result.title = $(this).children().text();
-			result.link = $(this).children("a").attr("href");
-			//Using Article model, create a new entry and passing result objest to entry
-			var entry = new Article(result);
-			//Save that entry to db
-			entry.save(function(error, doc) {
-				if (error) {
-					console.log(error);
-				} else {
-					console.log(doc);
-				}
+      var result = {};
+      //loop  through object's result
+      for (var i in result) {
+        addIfNotFound(i);
+      }
+    });
 
-			});
+    function addIfNotFound(current) {
+      //var result = {};
+      //Adding and saving every text and href as properties of result object
+      result.title = $(this).children().text();
+      result.link = $(this).children("a").attr("href");
+      //Using Article model, create a new entry and passing result objest to entry
+      var entry = new Article(result);
+      //Save that entry to db
+      entry.save(function(error, doc) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log(doc);
+        }
+
+      });
+
+    }
+			
 		});
+    //Send message to browser 
+    res.redirect("/");
+
 	});
-	//Send message to browser 
-	res.send("Scrape completed!")
-});
+	
+//});
 
 //This route will get saved articles in mongoDB
 app.get("/articles", function(req, res) {

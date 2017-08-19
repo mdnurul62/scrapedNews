@@ -16,7 +16,6 @@
 
 //Whenever reader clicks news heading
 $(document).on("click", "p", function() { 
-  $("p").toggle("modal")
   $("#reviews").empty();
   //Save the id from the p tag
   var thisId = $(this).attr("data-id");
@@ -46,10 +45,10 @@ $(document).on("click", "p", function() {
 });
 
 // When you click the saveReview button
-$(document).on("click", "#saveReview", function() {
+$(document).on("click", "#saveReview", ".close", function() {
   // Grab the id associated with the article from the submit button
   var thisId = $(this).attr("data-id");
-
+  console.log(thisId);
   // Run a POST request to change the note, using what's entered in the inputs
   $.ajax({
     method: "POST",
