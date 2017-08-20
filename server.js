@@ -22,24 +22,31 @@ app.use(bodyParser.urlencoded({extebded: false}));
 //Make public a static dir
 app.use(express.static("public"));
 
-//Database configuration
-var databaseUrl = "scraper";
-var collections = ["scrapedData"];
+// //Database configuration
+// var databaseUrl = "scraper";
+// var collections = ["scrapedData"];
 
 //Hook up mongojs configuration to the db variables
 //var db = mongojs(databaseUrl, collections);
+//mongo_uri: heroku_wj713hrb:4s02k3suj2010nkv6kmsd6roj6@ds149373.mlab.com:49373/heroku_wj713hrb
 //Database configuration mongoose
 mongoose.connect("mongodb://heroku_wj713hrb:4s02k3suj2010nkv6kmsd6roj6@ds149373.mlab.com:49373/heroku_wj713hrb");
-var db = mongoose.connection;
-//Show any mongoose errors
-db.on("error", function(error) {
-	console.log("Database Error", error);
+
+var promise = mongoose.connect('mongodb://localhost/scraped', {
+  useMongoClient: true,
+  /* other options */
 });
 
-//Once logged in to the db through mongoose, log a success message
-
-db.once("open", function() {
-	console.log("Mongoose connect successfully!");
+promise.then(function(db) {
+  var db = mongoose.connection;
+    //Show any mongoose errors
+    db.on("error", function(error) {
+      console.log("Database Error", error);
+    });
+    //Once logged in to the db through mongoose, log a success message
+    db.once("open", function() {
+      console.log("Mongoose connect successfully!");
+    });
 });
 
 
@@ -52,40 +59,36 @@ console.log("\n***********************************\n" +
 
 //Making a request for new york times scraped data
 app.get("/scrape", function(req, res) {
-	var request = require('request');
+	//var request = require('request');
 	request('http://www.nytimes.com', function (error, response, html) {
 		var $ = cheerio.load(html);
-		//var results = [];
-		$("h2.story-heading").each(function(i, element) {
-      var result = {};
-      //loop  through object's result
-    //   for (var i in result) {
-    //     addIfNotFound(i);
-    //   }
-    // });
+		
+      //function addIfNotFound() {
+    		$("h2.story-heading").each(function(i, element) {
+          var results = {};
+          //Adding and saving every text and href as properties of result object
+          results.title = $(this).children().text();
+          console.log(results.title);
+          results.link = $(this).children("a").attr("href");
 
-    // function addIfNotFound() {
-    //   //var result = {};
-      //Adding and saving every text and href as properties of result object
-      result.title = $(this).children().text();
-      result.link = $(this).children("a").attr("href");
-      //Using Article model, create a new entry and passing result objest to entry
-      var entry = new Article(result);
-      //Save that entry to db
-      entry.save(function(error, doc) {
-        if (error) {
-          console.log(error);
-        } else {
-          console.log(doc);
+          // MAKE A QUERY TO ARTICLE TABLE IN MONGODB TO CHECK IF IT EXISTS
+          // IF IT EXISTS IGNORE OR PRINT A MESSAGE IN TERMINAL STATING ARTICLE EXISTS
+          // IF ARTICCLE DOESN'T ALREADY EXISTS THEN CREATE A NEW ONE
+          if (results == results.title[i]) {
+              return false;
+          } else {
+              //Using Article model, create a new entry and passing result objest to entry
+              var entry = new Article(results);
+              //Save that entry to db
+              entry.save(function(error, doc) {
+                if (error) {
+                  console.log(error);
+                } else {
+                  console.log(doc);
+              }
+          });
         }
-
-      });
-
-    //}
-			
-		});
-    
-
+  		});
 	});
 	//Send message to browser 
     res.send("Scrape successfully completed!");
@@ -133,8 +136,8 @@ app.get("/articles/:id", function(req, res) {
 });
 
 // Delete One from the DB
-app.get("/delete/:id", function(req, res) {
-  // Remove a note using the objectID
+app.get("/articles/delete/:id", function(req, res) {
+  // Remove an article using the objectID
   Article.remove({
     "_id": req.params.id
   }, function(error, removed) {
@@ -199,6 +202,24 @@ app.post("/articles/:id", function(req, res) {
           res.send(doc);
         }
       });
+    }
+  });
+});
+
+// Delete all from DB
+app.get("/deleteall", function(req, res) {
+  // Remove every note from the notes collection
+  Article.remove({}, function(error, response) {
+    // Log any errors to the console
+    if (error) {
+      console.log(error);
+      res.send(error);
+    }
+    // Otherwise, send the mongojs response to the browser
+    // This will fire off the success function of the ajax request
+    else {
+      console.log(response);
+      res.send(response);
     }
   });
 });
