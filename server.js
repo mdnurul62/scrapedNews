@@ -28,9 +28,10 @@ app.use(express.static("public"));
 
 //Hook up mongojs configuration to the db variables
 //var db = mongojs(databaseUrl, collections);
+//MONGODB_URI: mongodb://heroku_wj7l3hrb:4s02k3suj2010nkv6kmsd6roj6@ds149373.mlab.com:49373/heroku_wj7l3hrb
 //mongo_uri: heroku_wj713hrb:4s02k3suj2010nkv6kmsd6roj6@ds149373.mlab.com:49373/heroku_wj713hrb
 //Database configuration mongoose
-mongoose.connect("mongodb://heroku_wj713hrb:4s02k3suj2010nkv6kmsd6roj6@ds149373.mlab.com:49373/heroku_wj713hrb");
+mongoose.connect("mongodb://heroku_wj7l3hrb:4s02k3suj2010nkv6kmsd6roj6@ds149373.mlab.com:49373/heroku_wj7l3hrb");
 
 var promise = mongoose.connect('mongodb://localhost/scraped', {
   useMongoClient: true,
