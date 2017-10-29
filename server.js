@@ -1,233 +1,60 @@
-//Scraping tools
-var cheerio = require('cheerio');
-var request = require('request');
-//Dependencies
-var express = require('express');
-var mongojs = require('mongojs');
-var mongoose = require('mongoose');
-var bodyParser = require('body-parser');
+// Web Scraper Homework Solution Example
+// (be sure to watch the video to see
+// how to operate the site in the browser)
+// -/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/
 
-//Requiring two models of Article and reader's Review
-var Article = require("./models/Article.js");
-var Review = require("./models/Review.js");
-//Set mongoose to leverage built in Javascript Promises
-mongoose.Promise = Promise;
+// Require our dependencies
+var express = require("express");
+var mongoose = require("mongoose");
+var expressHandlebars = require("express-handlebars");
+var bodyParser = require("body-parser");
 
-//Initializes express
+// Set up our port to be either the host's designated port, or 3000
+var PORT = process.env.PORT || 3000;
+
+// Instantiate our Express App
 var app = express();
 
-//Use body parser with app
-app.use(bodyParser.urlencoded({extebded: false}));
+// Set up an Express Router
+var router = express.Router();
 
-//Make public a static dir
-app.use(express.static("public"));
+// Require our routes file pass our router object
+require("./config/routes")(router);
 
-// //Database configuration
-// var databaseUrl = "scraper";
-// var collections = ["scrapedData"];
+// Designate our public folder as a static directory
+app.use(express.static(__dirname + "/public"));
 
-//Hook up mongojs configuration to the db variables
-//var db = mongojs(databaseUrl, collections);
-//MONGODB_URI: mongodb://heroku_wj7l3hrb:4s02k3suj2010nkv6kmsd6roj6@ds149373.mlab.com:49373/heroku_wj7l3hrb
-//mongo_uri: heroku_wj713hrb:4s02k3suj2010nkv6kmsd6roj6@ds149373.mlab.com:49373/heroku_wj713hrb
-//Database configuration mongoose
-mongoose.connect("mongodb://heroku_wj7l3hrb:4s02k3suj2010nkv6kmsd6roj6@ds149373.mlab.com:49373/heroku_wj7l3hrb");
+// Connect Handlebars to our Express app
+app.engine("handlebars", expressHandlebars({
+  defaultLayout: "main"
+}));
+app.set("view engine", "handlebars");
 
-var promise = mongoose.connect('mongodb://localhost/scraped', {
-  useMongoClient: true,
-  /* other options */
+// Use bodyParser in our app
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
+
+// Have every request go through our router middleware
+app.use(router);
+
+
+// If deployed, use the deployed database. Otherwise use the local mongoHeadlines database
+var db = process.env.MONGODB_URI || "mongodb://localhost/mongoHeadlines";
+
+// Connect mongoose to our database
+mongoose.connect(db, function(error) {
+  // Log any errors connecting with mongoose
+  if (error) {
+    console.log(error);
+  }
+  // Or log a success message
+  else {
+    console.log("mongoose connection is successful");
+  }
 });
 
-promise.then(function(db) {
-  var db = mongoose.connection;
-    //Show any mongoose errors
-    db.on("error", function(error) {
-      console.log("Database Error", error);
-    });
-    //Once logged in to the db through mongoose, log a success message
-    db.once("open", function() {
-      console.log("Mongoose connect successfully!");
-    });
-});
-
-
-// First, tell the console what server.js is doing
-console.log("\n***********************************\n" +
-            "Grabbing every thread name and link\n" +
-            "from nytimes site:" +
-            "\n***********************************\n");
-
-
-//Making a request for new york times scraped data
-app.get("/scrape", function(req, res) {
-	//var request = require('request');
-	request('http://www.nytimes.com', function (error, response, html) {
-		var $ = cheerio.load(html);
-		
-      //function addIfNotFound() {
-    		$("h2.story-heading").each(function(i, element) {
-          var results = {};
-          //Adding and saving every text and href as properties of result object
-          results.title = $(this).children().text();
-          console.log(results.title);
-          results.link = $(this).children("a").attr("href");
-
-          // MAKE A QUERY TO ARTICLE TABLE IN MONGODB TO CHECK IF IT EXISTS
-          // IF IT EXISTS IGNORE OR PRINT A MESSAGE IN TERMINAL STATING ARTICLE EXISTS
-          // IF ARTICCLE DOESN'T ALREADY EXISTS THEN CREATE A NEW ONE
-          if (results == results.title[i]) {
-              return false;
-          } else {
-              //Using Article model, create a new entry and passing result objest to entry
-              var entry = new Article(results);
-              //Save that entry to db
-              entry.save(function(error, doc) {
-                if (error) {
-                  console.log(error);
-                } else {
-                  console.log(doc);
-              }
-          });
-        }
-  		});
-	});
-	//Send message to browser 
-    res.send("Scrape successfully completed!");
-});
-
-//This route will get saved articles in mongoDB
-app.get("/articles", function(req, res) {
-	Article.find({}, function(error, doc) {
-		if (error) {
-			console.log(error);
-		} else {
-			res.json(doc);
-		}
-
-	});
-});
-
-app.get("/reviews", function(req, res) {
-	Review.find({}, function(err, doc) {
-		if(err) {
-			console.log(err);
-		} else {
-			res.json(doc);
-		}
-	});
-});
-
-// Grab an article by it's ObjectId
-app.get("/articles/:id", function(req, res) {
-  // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
-  Article.findOne({ "_id": req.params.id })
-  // ..and populate all of the notes associated with it
-  .populate("review")
-  // now, execute our query
-  .exec(function(error, doc) {
-    // Log any errors
-    if (error) {
-      console.log(error);
-    }
-    // Otherwise, send the doc to the browser as a json object
-    else {
-      res.json(doc);
-    }
-  });
-});
-
-// Delete One from the DB
-app.get("/articles/delete/:id", function(req, res) {
-  // Remove an article using the objectID
-  Article.remove({
-    "_id": req.params.id
-  }, function(error, removed) {
-    // Log any errors from mongojs
-    if (error) {
-      console.log(error);
-      res.send(error);
-    }
-    // Otherwise, send the mongojs response to the browser
-    // This will fire off the success function of the ajax request
-    else {
-      console.log(removed);
-      res.send(removed);
-    }
-  });
-});
-
-// Delete One from the DB
-app.get("/reviews/delete/:_id", function(req, res) {
-  // Remove a note using the objectID
-  Review.remove({
-    "_id": req.params.id
-  }, function(error, removed) {
-    // Log any errors from mongojs
-    if (error) {
-      console.log(error);
-      res.send(error);
-    }
-    // Otherwise, send the mongojs response to the browser
-    // This will fire off the success function of the ajax request
-    else {
-      console.log(removed);
-      res.send(removed);
-    }
-  });
-});
-
-
-// Create a new note or replace an existing note
-app.post("/articles/:id", function(req, res) {
-  // Create a new note and pass the req.body to the entry
-  var newReview = new Review(req.body);
-
-  // And save the new review to the db
-  newReview.save(function(error, doc) {
-    // Log any errors
-    if (error) {
-      console.log(error);
-    }
-    // Otherwise
-    else {
-      // Use the article id to find and update it's note
-      Article.findOneAndUpdate({ "_id": req.params.id }, { "review": doc._id })
-      // Execute the above query
-      .exec(function(err, doc) {
-        // Log any errors
-        if (err) {
-          console.log(err);
-        }
-        else {
-          // Or send the document to the browser
-          res.send(doc);
-        }
-      });
-    }
-  });
-});
-
-// Delete all from DB
-app.get("/deleteall", function(req, res) {
-  // Remove every note from the notes collection
-  Article.remove({}, function(error, response) {
-    // Log any errors to the console
-    if (error) {
-      console.log(error);
-      res.send(error);
-    }
-    // Otherwise, send the mongojs response to the browser
-    // This will fire off the success function of the ajax request
-    else {
-      console.log(response);
-      res.send(response);
-    }
-  });
-});
-
-
-//Listen on port 3000
-app.listen(3000, function() {
-	console.log("App running on port 3000!!!");
-
+// Listen on the port
+app.listen(PORT, function() {
+  console.log("Listening on port:" + PORT);
 });
